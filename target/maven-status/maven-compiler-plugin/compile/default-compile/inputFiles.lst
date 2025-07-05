@@ -1,6 +1,10 @@
 D:\S6\SPRING\projet_medical\src\main\java\com\medical\controller\AuthController.java
 D:\S6\SPRING\projet_medical\src\main\java\com\medical\repository\UserRepository.java
+D:\S6\SPRING\projet_medical\src\main\java\com\medical\repository\PatientRepository.java
+D:\S6\SPRING\projet_medical\src\main\java\com\medical\model\Patient.java
 D:\S6\SPRING\projet_medical\src\main\java\com\medical\config\SecurityConfig.java
 D:\S6\SPRING\projet_medical\src\main\java\com\medical\model\User.java
+D:\S6\SPRING\projet_medical\src\main\java\com\medical\service\PatientDetailsService.java
 D:\S6\SPRING\projet_medical\src\main\java\com\medical\service\AuthenticationService.java
+D:\S6\SPRING\projet_medical\src\main\java\com\medical\controller\PatientController.java
 D:\S6\SPRING\projet_medical\src\main\java\com\medical\MedicalApplication.java

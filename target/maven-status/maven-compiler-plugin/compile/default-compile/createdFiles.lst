@@ -1,7 +1,11 @@
-com\medical\config\SecurityConfig.class
 com\medical\controller\AuthController.class
 com\medical\service\AuthenticationService.class
-com\medical\repository\UserRepository.class
+com\medical\controller\PatientController.class
 com\medical\model\User.class
+com\medical\repository\PatientRepository.class
 com\medical\MedicalApplication.class
 com\medical\model\User$Role.class
+com\medical\config\SecurityConfig.class
+com\medical\repository\UserRepository.class
+com\medical\service\PatientDetailsService.class
+com\medical\model\Patient.class
