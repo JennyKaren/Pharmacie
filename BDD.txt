@@ -1,0 +1,215 @@
+-- Création de l'enum pour les rôles
+CREATE TYPE user_role AS ENUM ('MEDECIN', 'INFIRMIER', 'PHARMACIEN');
+
+-- Table users
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role user_role NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Insertion de données dans users
+INSERT INTO users (username, password, role, nom, prenom, email) VALUES (
+    'medecin',
+    'medecin123',
+    'MEDECIN',
+    'Dupont',
+    'Pierre',
+    'pierre.dupont@medecin.com'
+);
+
+INSERT INTO users (username, password, role, nom, prenom, email) VALUES (
+    'infirmier',
+    'infirmier123',
+    'INFIRMIER',
+    'Martin',
+    'Sophie',
+    'sophie.martin@infirmier.com'
+);
+
+INSERT INTO users (username, password, role, nom, prenom, email) VALUES (
+    'pharmacien',
+    'pharmacien123',
+    'PHARMACIEN',
+    'Leroy',
+    'Jean',
+    'jean.leroy@pharmacien.com'
+);
+
+-- Table patients
+CREATE TABLE patients (
+    id BIGSERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    date_naissance DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table antecedents_medicaux
+CREATE TABLE antecedents_medicaux (
+    id BIGSERIAL PRIMARY KEY,
+    patient_id BIGINT NOT NULL,
+    description TEXT NOT NULL,
+    date_antecedent DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table consultations
+CREATE TABLE consultations (
+    id BIGSERIAL PRIMARY KEY,
+    patient_id BIGINT NOT NULL,
+    medecin_id BIGINT NOT NULL,
+    infirmier_id BIGINT,
+    consultation_precedente_id BIGINT,
+    date_consultation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    FOREIGN KEY (medecin_id) REFERENCES users(id) ON DELETE RESTRICT,
+    FOREIGN KEY (infirmier_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (consultation_precedente_id) REFERENCES consultations(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table symptomes
+CREATE TABLE symptomes (
+    id BIGSERIAL PRIMARY KEY,
+    consultation_id BIGINT NOT NULL,
+    description VARCHAR(100) NOT NULL, -- Ex. : 'Vertige', 'Fièvre'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table parametres
+CREATE TABLE parametres (
+    id BIGSERIAL PRIMARY KEY,
+    consultation_id BIGINT NOT NULL,
+    temperature DECIMAL(4,1), -- Ex. : 37.5°C
+    tension_arterielle VARCHAR(20), -- Ex. : '120/80'
+    pouls INTEGER, -- Ex. : 80 bpm
+    autre_parametre TEXT, -- Pour d'autres paramètres non structurés
+    date_saisie TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table prescriptions
+CREATE TABLE prescriptions (
+    id BIGSERIAL PRIMARY KEY,
+    consultation_id BIGINT NOT NULL,
+    diagnostic TEXT,
+    date_prescription TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table medicaments
+CREATE TABLE medicaments (
+    id BIGSERIAL PRIMARY KEY,
+    nom VARCHAR(100) UNIQUE NOT NULL,
+    quantite_stock INTEGER NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table stock_mouvements
+CREATE TABLE stock_mouvements (
+    id BIGSERIAL PRIMARY KEY,
+    medicament_id BIGINT NOT NULL,
+    type_mouvement VARCHAR(50) NOT NULL, -- Ex. : 'ENTREE', 'SORTIE', 'AJUSTEMENT'
+    quantite INTEGER NOT NULL,
+    date_mouvement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (medicament_id) REFERENCES medicaments(id) ON DELETE RESTRICT,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table prescription_medicaments
+CREATE TABLE prescription_medicaments (
+    id BIGSERIAL PRIMARY KEY,
+    prescription_id BIGINT NOT NULL,
+    medicament_id BIGINT NOT NULL,
+    duree VARCHAR(50),
+    posologie VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (prescription_id) REFERENCES prescriptions(id) ON DELETE CASCADE,
+    FOREIGN KEY (medicament_id) REFERENCES medicaments(id) ON DELETE RESTRICT,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table examens
+CREATE TABLE examens (
+    id BIGSERIAL PRIMARY KEY,
+    prescription_id BIGINT NOT NULL,
+    type_examen VARCHAR(50) NOT NULL, -- Ex. : 'ANALYSE', 'RADIO', 'ECHO'
+    description TEXT,
+    resultat TEXT,
+    date_examen TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (prescription_id) REFERENCES prescriptions(id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table resultats_examens
+CREATE TABLE resultats_examens (
+    id BIGSERIAL PRIMARY KEY,
+    examen_id BIGINT NOT NULL,
+    type_resultat VARCHAR(50), -- Ex. : 'GLYCEMIE', 'CHOLESTEROL'
+    valeur DECIMAL(10,2),
+    unite VARCHAR(20), -- Ex. : 'g/L', 'mmol/L'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (examen_id) REFERENCES examens(id) ON DELETE CASCADE,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Table actes_medicaux
+CREATE TABLE actes_medicaux (
+    id BIGSERIAL PRIMARY KEY,
+    consultation_id BIGINT NOT NULL,
+    type_acte VARCHAR(50) NOT NULL, -- Ex. : 'PIQURE', 'PANSEMENT'
+    description TEXT,
+    infirmier_id BIGINT,
+    date_acte TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP,
+    updated_by BIGINT,
+    FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE,
+    FOREIGN KEY (infirmier_id) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL
+);

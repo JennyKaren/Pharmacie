@@ -1,0 +1,46 @@
+Cahier des Charges 
+
+ 1. Objectif
+Développer une application web simple avec Java Spring Boot pour gérer :
+- Les consultations médicales (paramètres, symptômes, prescriptions).
+- Le suivi des patients (évolution, examens).
+- Le stock de médicaments.
+
+ 2. Fonctionnalités Principales
+
+ 2.1. Utilisateurs
+- Rôles : Médecin, Infirmier, Pharmacien.
+- Actions: Connexion (login/mot de passe), gestion des droits d’accès.
+
+ 2.2. Patients
+- Données : Nom, prénom, date de naissance, antécédents médicaux.
+- Actions : Ajout, modification, consultation des antécédents.
+
+ 2.3. Consultations
+- Étapes :
+  1. Infirmier : Saisie des paramètres (température, tension artérielle).
+  2. Médecin : Consultation des antécédents, saisie des symptômes (ex. : fièvre, vertige).
+- Actions : Enregistrer une consultation avec paramètres et symptômes.
+
+ 2.4. Prescriptions
+- Contenu : Médicaments (nom, durée,...), examens (analyse, radio), diagnostic.
+- Actions : Créer, consulter, exporter en PDF.
+
+ 2.5. Suivi des Patients
+- Actions :
+  - Retour patient : Saisie de nouveaux paramètres, résultats d’examens.
+  - Comparaison de l’évolution, nouvelle prescription si nécessaire.
+
+ 2.6. Actes Médicaux
+- Types : Injection, pansement.
+- Actions : Enregistrer un acte lié à une consultation
+
+ 3. Contraintes Techniques
+Backend : Java Spring Boot, Spring Security, Spring Data JPA.
+Base de données : PostgreSQL.
+Frontend : HTML, CSS, JavaScript .
+Sécurité : Authentification basique, protection des données sensibles.
+Export : Génération des prescriptions en PDF (via bibliothèque comme iText).
+
+
+mvn spring-boot:run
